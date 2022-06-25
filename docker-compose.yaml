@@ -1,0 +1,23 @@
+version: "3"
+
+services:
+
+  app:
+    container_name: help_work_bot
+    build: hwb/
+
+    environment:
+      TOKEN: "${TOKEN}"
+
+    volumes:
+      - ./db:/app/db
+
+  sqlite:
+    image: coleifer/sqlite-web:latest
+    container_name: sqlite
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./db:/data
+    environment:
+      SQLITE_DATABASE: "command.db"
