@@ -12,6 +12,5 @@ def create_button(parent: str):
     root = sql_parent(parent)
     if not root:
         root = 'help'
-    inline_btn = InlineKeyboardButton("Назад", callback_data=root)
-    inline_kbm.insert(inline_btn)
+    inline_kbm.add(InlineKeyboardButton("Назад", callback_data=root))
     return inline_kbm
