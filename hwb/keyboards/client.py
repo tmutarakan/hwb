@@ -3,7 +3,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from sqlite.sqlite_db import sql_child, sql_parent
 
 
-def create_button(parent: str):
+def create_keyboard(parent: str):
     inline_kbm = InlineKeyboardMarkup()
     for ret in sql_child(parent):
         inline_btn = InlineKeyboardButton(ret[2], callback_data=ret[1])
