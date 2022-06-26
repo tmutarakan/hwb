@@ -1,3 +1,4 @@
+# Отдельный модуль для бота и диспетчера
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 import os

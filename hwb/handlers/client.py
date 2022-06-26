@@ -8,13 +8,15 @@ async def commands_start(message: types.Message):
     await message.answer('Справочная', reply_markup=kc.create_keyboard(parent=''))
 
 
-#@dp.callback_query_handler(func=lambda c: c.data == 'button1')
 async def process_callback_button(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
     if callback_query.data in ('', 'help'):
+        # Возврат к началу
         await bot.send_message(callback_query.from_user.id, 'Справочная', reply_markup=kc.create_keyboard(parent=''))
     else:
+        # Отправляет сообщение с новой клавиатурой
         await bot.send_message(callback_query.from_user.id, sql_read(callback_query.data), reply_markup=kc.create_keyboard(parent=callback_query.data))
+    # Удаляет клавиатуру предыдущего сообщения
     await bot.edit_message_reply_markup(
         chat_id=callback_query.from_user.id,
         message_id=callback_query.message.message_id,
