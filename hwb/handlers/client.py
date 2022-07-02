@@ -19,9 +19,11 @@ async def process_callback_button(callback_query: types.CallbackQuery):
             f'{callback_query.from_user.full_name} вас приветствует справочная.',
             reply_markup=kc.create_keyboard(parent='help'))
     elif '_file' in data:
-        await bot.send_document(callback_query.from_user.id, InputFile(sql_path(data)))
-        data = sql_parent(data)
-        await bot.send_message(callback_query.from_user.id, sql_read(data), reply_markup=kc.create_keyboard(parent=data))
+        await bot.send_document(callback_query.from_user.id, InputFile(sql_path(data)), reply_markup=kc.create_keyboard(parent=data))
+        # data = sql_parent(data)
+        # await bot.send_message(callback_query.from_user.id, sql_read(data), reply_markup=kc.create_keyboard(parent=data))
+    elif '_photo' in data:
+        await bot.send_photo(callback_query.from_user.id, InputFile(sql_path(data)), caption=sql_read(data), reply_markup=kc.create_keyboard(parent=data))
     else:
         # Отправляет сообщение с новой клавиатурой
         await bot.send_message(callback_query.from_user.id, sql_read(data), reply_markup=kc.create_keyboard(parent=data))

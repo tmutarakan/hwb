@@ -4,7 +4,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from sqlite.sqlite_db import sql_child, sql_parent
 
 
-def create_keyboard(parent: str):
+def create_keyboard(parent: str) -> InlineKeyboardMarkup:
     # Создаёт клавиатуру на основе запроса из базы данных
     inline_kbm = InlineKeyboardMarkup()
     for name, message in sql_child(parent):
