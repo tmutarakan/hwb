@@ -11,6 +11,7 @@ services:
 
     volumes:
       - ./db:/app/db
+      - ./static:/app/static
 
   sqlite:
     image: coleifer/sqlite-web:latest
