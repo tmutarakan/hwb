@@ -36,6 +36,7 @@ def sql_read(name: str):
 def sql_parent(name: str):
     # Возвращает данные для кнопки Назад
     conn, cur = sql_open_conn(DB)
+    logger.info(f'sql query {name}')
     res = cur.execute('SELECT parent FROM command WHERE name = ?', (name, )).fetchone()
     if res:
         return res[0]
