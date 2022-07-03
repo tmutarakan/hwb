@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 DB = 'db/command.db'
 
 
-def sql_open_conn(db: str) -> tuple(sq.Connection, sq.Cursor):
+def sql_open_conn(db: str) -> tuple():
     conn = sq.connect(db)
     cur = conn.cursor()
     return conn, cur
