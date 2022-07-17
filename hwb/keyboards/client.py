@@ -1,5 +1,5 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from sqlite.sqlite_db import sql_child, sql_parent
+from sqlite.sqlite_db import sql_child, sql_create_pages, sql_parent, sql_read_page
 from collections import deque
 
 
@@ -63,17 +63,22 @@ def create_page(parent):
             temp.list_button.append(msg_list.popleft())
 
         p.rows.append(temp.list_button)
-        #if len(p) < 5:
-        #    p.rows.append(temp.list_button)
-        #else:
-        #    p.rows.append([ButtonData('Вперёд', '/next')])
-        #    break
+    if len(p) > 5:
+        sql_create_pages(p.rows)
+        #p.rows = [p.rows[i] for i in range(5)]
+        p.rows.append([ButtonData('Вперёд', '/next')])
+        print(sql_read_page())
+
     return p
 
 
 def create_keyboard(parent: str) -> InlineKeyboardMarkup:
     # Создаёт клавиатуру на основе запроса из базы данных
     inline_kbm = InlineKeyboardMarkup()
+    root = sql_parent(parent)
+    if root:
+        inline_kbm.add(InlineKeyboardButton("Вернуться", callback_data=root))
+    
     page = create_page(parent)
     for row in page.rows:
         temp = []
@@ -81,8 +86,5 @@ def create_keyboard(parent: str) -> InlineKeyboardMarkup:
             temp.append(InlineKeyboardButton(button_data.message, callback_data=button_data.name))
         inline_kbm.row(*temp)
 
-    root = sql_parent(parent)
     print(f'{page} {len(page)}')
-    if root:
-        inline_kbm.add(InlineKeyboardButton("Вернуться", callback_data=root))
     return inline_kbm
