@@ -1,5 +1,5 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from sqlite.sqlite_db import sql_child, sql_create_pages, sql_parent, sql_read_page
+from sqlite.sqlite_db import sql_child, sql_create_pages, sql_parent, sql_read_page, sql_update_current_number, sql_update_current_parent, sql_read_current_parent
 from collections import deque
 
 
@@ -65,9 +65,11 @@ def create_page(parent):
         p.rows.append(temp.list_button)
     if len(p) > 5:
         sql_create_pages(p.rows)
-        #p.rows = [p.rows[i] for i in range(5)]
+        p.rows = [p.rows[i] for i in range(5)]
         p.rows.append([ButtonData('Вперёд', '/next')])
-        print(sql_read_page())
+        sql_update_current_number(1)  
+        print(f'parent {parent}')
+        sql_update_current_parent(sql_parent(parent))
 
     return p
 
@@ -86,5 +88,27 @@ def create_keyboard(parent: str) -> InlineKeyboardMarkup:
             temp.append(InlineKeyboardButton(button_data.message, callback_data=button_data.name))
         inline_kbm.row(*temp)
 
-    print(f'{page} {len(page)}')
+    #print(f'{page} {len(page)}')
+    return inline_kbm
+
+
+def edit_keyboard(data):
+    inline_kbm = InlineKeyboardMarkup()
+    root = sql_read_current_parent()
+    if root:
+        inline_kbm.add(InlineKeyboardButton("Вернуться", callback_data=root))
+
+    pages = sql_read_page(data)
+    row_count = 1
+    temp = []
+    for row_number, name, message in pages:
+        if row_number == row_count:
+            temp.append(InlineKeyboardButton(message, callback_data=name))
+        else:
+            row_count += 1
+            inline_kbm.row(*temp)
+            temp = []
+            temp.append(InlineKeyboardButton(message, callback_data=name))
+    inline_kbm.row(*temp)
+    inline_kbm.row(InlineKeyboardButton('Назад', callback_data='/prev'), InlineKeyboardButton('Вперёд', callback_data='/next'))
     return inline_kbm

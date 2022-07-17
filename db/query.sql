@@ -44,6 +44,12 @@ create table page_number(
 
 insert into page_number (current_number) values (0);
 
+create table parent(
+    current_parent text
+);
+
+insert into parent (current_parent) values ('');
+
 create table pages(
     id integer primary key AUTOINCREMENT,
     page_number integer,
