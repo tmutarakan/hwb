@@ -8,6 +8,12 @@ class ButtonData:
         self.message = message
         self.name = name
 
+    def __str__(self) -> str:
+        return f'{self.name} {self.message}'
+
+    def __repr__(self) -> str:
+        return f'{self.name} {self.message}'
+
 
 class TempData:
     def __init__(self) -> None:
@@ -18,13 +24,23 @@ class TempData:
         self.list_button = []       # Список для кнопок
 
 
-def create_keyboard(parent: str) -> InlineKeyboardMarkup:
-    # Создаёт клавиатуру на основе запроса из базы данных
-    inline_kbm = InlineKeyboardMarkup()
+class Page:
+    def __init__(self) -> None:
+        self.rows = []
+
+    def __str__(self) -> str:
+        return f'{self.rows}'
+
+    def __len__(self) -> int:
+        return len(self.rows)
+
+
+def create_page(parent):
     msg_list = deque()
     for name, message in sql_child(parent):
         msg_list.append(ButtonData(message, name))
 
+    p = Page()
     while len(msg_list) > 0:
         temp = TempData()
         
@@ -44,11 +60,29 @@ def create_keyboard(parent: str) -> InlineKeyboardMarkup:
                 temp.list_length.append(elem_length)
             
         for _ in range(temp.count):
-            b_data = msg_list.popleft()
-            temp.list_button.append(InlineKeyboardButton(b_data.message, callback_data=b_data.name))
-        inline_kbm.row(*temp.list_button)
+            temp.list_button.append(msg_list.popleft())
+
+        p.rows.append(temp.list_button)
+        #if len(p) < 5:
+        #    p.rows.append(temp.list_button)
+        #else:
+        #    p.rows.append([ButtonData('Вперёд', '/next')])
+        #    break
+    return p
+
+
+def create_keyboard(parent: str) -> InlineKeyboardMarkup:
+    # Создаёт клавиатуру на основе запроса из базы данных
+    inline_kbm = InlineKeyboardMarkup()
+    page = create_page(parent)
+    for row in page.rows:
+        temp = []
+        for button_data in row:
+            temp.append(InlineKeyboardButton(button_data.message, callback_data=button_data.name))
+        inline_kbm.row(*temp)
 
     root = sql_parent(parent)
+    print(f'{page} {len(page)}')
     if root:
-        inline_kbm.add(InlineKeyboardButton("Назад", callback_data=root))
+        inline_kbm.add(InlineKeyboardButton("Вернуться", callback_data=root))
     return inline_kbm
