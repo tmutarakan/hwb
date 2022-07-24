@@ -1,5 +1,5 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from sqlite.sqlite_db import sql_child, sql_create_pages, sql_parent, sql_read_page, sql_update_current_number, sql_update_current_parent, sql_read_current_parent
+from sqlite.sqlite_db import sql_child, sql_parent, sql_read_page
 from collections import deque
 
 
@@ -28,9 +28,9 @@ class State:
     def __init__(self, rows) -> None:
         self.page = []
         if len(rows) < 5:
-            p.rows.append(temp.list_button)
+            rows.append(temp.list_button)
         else:
-            p.rows.append([ButtonData('Вперёд', '/next')])
+            rows.append([ButtonData('Вперёд', '/next')])
 
     def __str__(self) -> str:
         return f'{self.rows}'
