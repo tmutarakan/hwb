@@ -3,6 +3,7 @@ from sqlite.sqlite_db import sql_child, sql_parent
 from collections import deque
 from keyboards.config import LIMIT_ROWS, MAX_STRING_LENGTH
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
+import pickle
 
 
 storage = MemoryStorage()
@@ -53,9 +54,24 @@ class State:
                 rows = rows[LIMIT_ROWS:]
                 i += 1
             self.page[i] = [_ for _ in rows]
-            self.page[i].append([ButtonData('Назад', '/prev')])
-        
+            self.page[i].append([ButtonData('Назад', '/prev')])        
         self.length: int = i + 1
+
+    def __getstate__(self) -> dict:  # Как мы будем "сохранять" класс
+        state = {}
+        state["user_id"] = self.user_id
+        state["curr"] = self.curr
+        state["root"] = self.root
+        state["page"] = self.page
+        state["length"] = self.length
+        return state
+
+    def __setstate__(self, state: dict):  # Как мы будем восстанавливать класс из байтов
+        self.user_id = state["user_id"]
+        self.curr = state["curr"]
+        self.root = state["root"]
+        self.page = state["page"]
+        self.length = state["length"]
 
     def __str__(self) -> str:
         return f'{self.page}'
@@ -102,8 +118,9 @@ def create_keyboard(parent: str, user_id: int) -> InlineKeyboardMarkup:
     if root:
         inline_kbm.add(InlineKeyboardButton("Вернуться", callback_data=root))
     rows = create_rows(parent)
-    global st
     st = State(rows, root, user_id)
+    with open(f"temp/{user_id}.pkl", "wb") as fp:
+        pickle.dump(st, fp)
     print(st)
     for row in st.page[0]:
         temp = []
@@ -115,11 +132,14 @@ def create_keyboard(parent: str, user_id: int) -> InlineKeyboardMarkup:
 
 
 def edit_keyboard(data: str, user_id: int) -> InlineKeyboardMarkup:
-    global st
+    with open(f"temp/{user_id}.pkl", "rb") as fp:
+        st = pickle.load(fp)
     if data == '/prev':
         st.curr -= 1
     else:
         st.curr += 1
+    with open(f"temp/{user_id}.pkl", "wb") as fp:
+        pickle.dump(st, fp)
     inline_kbm = InlineKeyboardMarkup()
     root = st.root
     if root:
