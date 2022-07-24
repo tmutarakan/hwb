@@ -5,9 +5,9 @@ from collections import deque
 
 
 class ButtonData:
-    def __init__(self, message, name) -> None:
-        self.message = message
-        self.name = name
+    def __init__(self, message: str, name: str) -> None:
+        self.message: str = message
+        self.name: str = name
 
     def __str__(self) -> str:
         return f'{self.name} {self.message}'
@@ -18,15 +18,15 @@ class ButtonData:
 
 class TempData:
     def __init__(self) -> None:
-        self.count = 0              # Количество кнопок в строке
-        self.length = 0             # Суммарная длина текста кнопок
-        self.list_length = []       # Длина текста каждой кнопки
-        self.all_length = True      # Вмещается ли текст всех кнопок в строке
-        self.list_button = []       # Список для кнопок
+        self.count: int = 0              # Количество кнопок в строке
+        self.length: int = 0             # Суммарная длина текста кнопок
+        self.list_length: list = []       # Длина текста каждой кнопки
+        self.all_length: bool = True      # Вмещается ли текст всех кнопок в строке
+        self.list_button: list = []       # Список для кнопок
 
 
 class State:
-    def __init__(self, rows, root) -> None:
+    def __init__(self, rows: list, root: str) -> None:
         self.curr: int = 0
         self.root: str = root
         self.page: dict = {}
@@ -55,7 +55,7 @@ class State:
         return self.length
 
 
-def create_rows(parent):
+def create_rows(parent: str):
     msg_list = deque()
     for name, message in sql_child(parent):
         msg_list.append(ButtonData(message, name))
@@ -105,7 +105,7 @@ def create_keyboard(parent: str) -> InlineKeyboardMarkup:
     return inline_kbm
 
 
-def edit_keyboard(data):
+def edit_keyboard(data: str):
     global st
     if data == '/prev':
         st.curr -= 1
