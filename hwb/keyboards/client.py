@@ -31,7 +31,10 @@ class State:
         self.curr: int = 0
         self.root: str = root
         self.page: dict = {}
+        self.length: int = 0
+        self.create_paginator(rows)
 
+    def create_paginator(self, rows):
         i = 0
         if len(rows) <= LIMIT_ROWS:
             self.page[i] = rows
