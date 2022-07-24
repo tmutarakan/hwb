@@ -2,6 +2,7 @@ from email import message
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from sqlite.sqlite_db import sql_child, sql_parent
 from collections import deque
+from keyboards.config import LIMIT_ROWS, MAX_STRING_LENGTH
 
 
 class ButtonData:
@@ -32,20 +33,21 @@ class State:
         self.page: dict = {}
 
         i = 0
-        if len(rows) < 5:
+        if len(rows) <= LIMIT_ROWS:
             self.page[i] = rows
         else:            
-            self.page[i] = [_ for _ in rows[:5]]
+            self.page[i] = [_ for _ in rows[:LIMIT_ROWS]]
             self.page[i].append([ButtonData('Вперёд', '/next')])
-            rows = rows[5:]
+            rows = rows[LIMIT_ROWS:]
             i += 1
-            while len(rows) > 5:
-                self.page[i] = [_ for _ in rows[:5]]
+            while len(rows) > LIMIT_ROWS:
+                self.page[i] = [_ for _ in rows[:LIMIT_ROWS]]
                 self.page[i].append([ButtonData('Назад', '/prev'), ButtonData('Вперёд', '/next')])
-                rows = rows[5:]
+                rows = rows[LIMIT_ROWS:]
                 i += 1
             self.page[i] = [_ for _ in rows]
             self.page[i].append([ButtonData('Назад', '/prev')])
+        
         self.length: int = i + 1
 
     def __str__(self) -> str:
@@ -66,13 +68,13 @@ def create_rows(parent: str):
         
         for elem in msg_list:
             elem_length = len(elem.message)
-            elem_size = 36/(temp.count + 1)    # Максимальная длина сообщения в кнопке
+            elem_size = MAX_STRING_LENGTH/(temp.count + 1)    # Максимальная длина сообщения в кнопке
             for temp_elem in temp.list_length:
                 if temp_elem > elem_size:
                     temp.all_length = False
                     break
             
-            if temp.length + elem_length > 36 or elem_length > elem_size or not temp.all_length:
+            if temp.length + elem_length > MAX_STRING_LENGTH or elem_length > elem_size or not temp.all_length:
                 break                
             else:
                 temp.count += 1
