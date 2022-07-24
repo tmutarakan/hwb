@@ -1,5 +1,5 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from sqlite.sqlite_db import sql_child, sql_parent
+from sqlite.sqlite_db import sql_child, sql_create_pages, sql_parent, sql_read_page, sql_update_current_number, sql_update_current_parent, sql_read_current_parent
 from collections import deque
 
 
@@ -65,9 +65,9 @@ def create_page(parent):
             
         for _ in range(temp.count):
             temp.list_button.append(msg_list.popleft())
-
         rows.append(temp.list_button)
     return rows
+
 
 
 def create_keyboard(parent: str) -> InlineKeyboardMarkup:
@@ -84,7 +84,6 @@ def create_keyboard(parent: str) -> InlineKeyboardMarkup:
         inline_kbm.row(*temp)    
     #print(f'{page} {len(page)}')
     return inline_kbm
-
 
 
 def edit_keyboard(data):
