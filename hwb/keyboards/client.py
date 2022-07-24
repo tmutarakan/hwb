@@ -1,8 +1,11 @@
-from email import message
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from sqlite.sqlite_db import sql_child, sql_parent
 from collections import deque
 from keyboards.config import LIMIT_ROWS, MAX_STRING_LENGTH
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
+
+
+storage = MemoryStorage()
 
 
 class ButtonData:
@@ -27,8 +30,9 @@ class TempData:
 
 
 class State:
-    def __init__(self, rows: list, root: str) -> None:
+    def __init__(self, rows: list, root: str, user_id: int) -> None:
         self.curr: int = 0
+        self.user_id: int = user_id
         self.root: str = root
         self.page: dict = {}
         self.length: int = 0
@@ -60,7 +64,7 @@ class State:
         return self.length
 
 
-def create_rows(parent: str):
+def create_rows(parent: str) -> list:
     msg_list = deque()
     for name, message in sql_child(parent):
         msg_list.append(ButtonData(message, name))
@@ -91,7 +95,7 @@ def create_rows(parent: str):
 
 
 
-def create_keyboard(parent: str) -> InlineKeyboardMarkup:
+def create_keyboard(parent: str, user_id: int) -> InlineKeyboardMarkup:
     # Создаёт клавиатуру на основе запроса из базы данных
     inline_kbm = InlineKeyboardMarkup()
     root = sql_parent(parent)
@@ -99,7 +103,7 @@ def create_keyboard(parent: str) -> InlineKeyboardMarkup:
         inline_kbm.add(InlineKeyboardButton("Вернуться", callback_data=root))
     rows = create_rows(parent)
     global st
-    st = State(rows, root)
+    st = State(rows, root, user_id)
     print(st)
     for row in st.page[0]:
         temp = []
@@ -110,7 +114,7 @@ def create_keyboard(parent: str) -> InlineKeyboardMarkup:
     return inline_kbm
 
 
-def edit_keyboard(data: str):
+def edit_keyboard(data: str, user_id: int) -> InlineKeyboardMarkup:
     global st
     if data == '/prev':
         st.curr -= 1
