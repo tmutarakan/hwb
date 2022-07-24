@@ -24,9 +24,13 @@ class TempData:
         self.list_button = []       # Список для кнопок
 
 
-class Page:
-    def __init__(self) -> None:
-        self.rows = []
+class State:
+    def __init__(self, rows) -> None:
+        self.page = []
+        if len(rows) < 5:
+            p.rows.append(temp.list_button)
+        else:
+            p.rows.append([ButtonData('Вперёд', '/next')])
 
     def __str__(self) -> str:
         return f'{self.rows}'
@@ -40,7 +44,7 @@ def create_page(parent):
     for name, message in sql_child(parent):
         msg_list.append(ButtonData(message, name))
 
-    p = Page()
+    rows = []
     while len(msg_list) > 0:
         temp = TempData()
         
@@ -61,17 +65,9 @@ def create_page(parent):
             
         for _ in range(temp.count):
             temp.list_button.append(msg_list.popleft())
+        rows.append(temp.list_button)
+    return rows
 
-        p.rows.append(temp.list_button)
-    if len(p) > 5:
-        sql_create_pages(p.rows)
-        p.rows = [p.rows[i] for i in range(5)]
-        p.rows.append([ButtonData('Вперёд', '/next')])
-        sql_update_current_number(1)  
-        print(f'parent {parent}')
-        sql_update_current_parent(sql_parent(parent))
-
-    return p
 
 
 def create_keyboard(parent: str) -> InlineKeyboardMarkup:
@@ -80,14 +76,12 @@ def create_keyboard(parent: str) -> InlineKeyboardMarkup:
     root = sql_parent(parent)
     if root:
         inline_kbm.add(InlineKeyboardButton("Вернуться", callback_data=root))
-    
-    page = create_page(parent)
-    for row in page.rows:
+    rows = create_page(parent)
+    for row in rows:
         temp = []
         for button_data in row:
             temp.append(InlineKeyboardButton(button_data.message, callback_data=button_data.name))
-        inline_kbm.row(*temp)
-
+        inline_kbm.row(*temp)    
     #print(f'{page} {len(page)}')
     return inline_kbm
 
