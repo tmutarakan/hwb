@@ -23,7 +23,7 @@ def _sql_open_conn(db: str) -> tuple():
 def sql_child(parent: str) -> tuple:
     # Возвращает данные необходимые для клавиатуры
     conn, cur = _sql_open_conn(DB)
-    res =  cur.execute('SELECT name, message FROM command WHERE parent = ?;', (parent, )).fetchall()
+    res =  cur.execute('SELECT name, message FROM command WHERE parent = ? ORDER BY name;', (parent, )).fetchall()
     conn.close()
     return res
 
