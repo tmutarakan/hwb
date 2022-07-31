@@ -23,11 +23,11 @@ class ButtonData:
 
 class TempData:
     def __init__(self) -> None:
-        self.count: int = 0              # Количество кнопок в строке
-        self.length: int = 0             # Суммарная длина текста кнопок
-        self.list_length: list = []       # Длина текста каждой кнопки
-        self.all_length: bool = True      # Вмещается ли текст всех кнопок в строке
-        self.list_button: list = []       # Список для кнопок
+        self.count: int = 0           # Количество кнопок в строке
+        self.length: int = 0          # Суммарная длина текста кнопок
+        self.list_length: list = []   # Длина текста каждой кнопки
+        self.all_length: bool = True  # Вмещается ли текст всех кнопок в строке
+        self.list_button: list = []   # Список для кнопок
 
 
 class State:
@@ -43,18 +43,21 @@ class State:
         i = 0
         if len(rows) <= LIMIT_ROWS:
             self.page[i] = rows
-        else:            
+        else:
             self.page[i] = [_ for _ in rows[:LIMIT_ROWS]]
             self.page[i].append([ButtonData('Вперёд', '/next')])
             rows = rows[LIMIT_ROWS:]
             i += 1
             while len(rows) > LIMIT_ROWS:
                 self.page[i] = [_ for _ in rows[:LIMIT_ROWS]]
-                self.page[i].append([ButtonData('Назад', '/prev'), ButtonData('Вперёд', '/next')])
+                self.page[i].append([
+                    ButtonData('Назад', '/prev'),
+                    ButtonData('Вперёд', '/next')
+                    ])
                 rows = rows[LIMIT_ROWS:]
                 i += 1
             self.page[i] = [_ for _ in rows]
-            self.page[i].append([ButtonData('Назад', '/prev')])        
+            self.page[i].append([ButtonData('Назад', '/prev')])
         self.length: int = i + 1
 
     def __getstate__(self) -> dict:  # Как мы будем "сохранять" класс
@@ -66,7 +69,7 @@ class State:
         state["length"] = self.length
         return state
 
-    def __setstate__(self, state: dict):  # Как мы будем восстанавливать класс из байтов
+    def __setstate__(self, state: dict):  # Восстанавливать класс из байтов
         self.user_id = state["user_id"]
         self.curr = state["curr"]
         self.root = state["root"]
@@ -88,27 +91,26 @@ def create_rows(parent: str) -> list:
     rows = []
     while len(msg_list) > 0:
         temp = TempData()
-        
         for elem in msg_list:
             elem_length = len(elem.message)
-            elem_size = MAX_STRING_LENGTH/(temp.count + 1)    # Максимальная длина сообщения в кнопке
+            # Максимальная длина сообщения в кнопке
+            elem_size = MAX_STRING_LENGTH/(temp.count + 1)
             for temp_elem in temp.list_length:
                 if temp_elem > elem_size:
                     temp.all_length = False
                     break
-            
-            if temp.length + elem_length > MAX_STRING_LENGTH or elem_length > elem_size or not temp.all_length:
-                break                
+            if temp.length + elem_length > MAX_STRING_LENGTH or \
+               elem_length > elem_size or \
+               not temp.all_length:
+                break
             else:
                 temp.count += 1
                 temp.length += elem_length
                 temp.list_length.append(elem_length)
-            
         for _ in range(temp.count):
             temp.list_button.append(msg_list.popleft())
         rows.append(temp.list_button)
     return rows
-
 
 
 def create_keyboard(parent: str, user_id: int) -> InlineKeyboardMarkup:
@@ -125,9 +127,13 @@ def create_keyboard(parent: str, user_id: int) -> InlineKeyboardMarkup:
     for row in st.page[0]:
         temp = []
         for button_data in row:
-            temp.append(InlineKeyboardButton(button_data.message, callback_data=button_data.name))
-        inline_kbm.row(*temp)    
-    #print(f'{page} {len(page)}')
+            temp.append(
+                InlineKeyboardButton(
+                    button_data.message,
+                    callback_data=button_data.name
+                    )
+                )
+        inline_kbm.row(*temp)
     return inline_kbm
 
 
@@ -149,6 +155,8 @@ def edit_keyboard(data: str, user_id: int) -> InlineKeyboardMarkup:
     for row in pages:
         temp = []
         for button in row:
-            temp.append(InlineKeyboardButton(button.message, callback_data=button.name))
+            temp.append(
+                InlineKeyboardButton(button.message, callback_data=button.name)
+                )
         inline_kbm.row(*temp)
     return inline_kbm

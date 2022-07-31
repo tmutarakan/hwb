@@ -23,7 +23,9 @@ def _sql_open_conn(db: str) -> tuple():
 def sql_child(parent: str) -> tuple:
     # Возвращает данные необходимые для клавиатуры
     conn, cur = _sql_open_conn(DB)
-    res =  cur.execute('SELECT name, message FROM command WHERE parent = ? ORDER BY name;', (parent, )).fetchall()
+    res = cur.execute(
+        'SELECT name, message FROM command WHERE parent = ? ORDER BY name;',
+        (parent, )).fetchall()
     conn.close()
     return res
 
@@ -31,7 +33,9 @@ def sql_child(parent: str) -> tuple:
 def sql_read(name: str) -> str or None:
     # Возвращает данные для ответного сообщения
     conn, cur = _sql_open_conn(DB)
-    res = cur.execute('SELECT content FROM command WHERE name = ?;', (name, )).fetchone()
+    res = cur.execute(
+        'SELECT content FROM command WHERE name = ?;',
+        (name, )).fetchone()
     conn.close()
     if res:
         return res[0]
@@ -41,7 +45,9 @@ def sql_parent(name: str) -> str or None:
     # Возвращает данные для кнопки Назад
     conn, cur = _sql_open_conn(DB)
     logger.info(f'sql query {name}')
-    res = cur.execute('SELECT parent FROM command WHERE name = ?;', (name, )).fetchone()
+    res = cur.execute(
+        'SELECT parent FROM command WHERE name = ?;',
+        (name, )).fetchone()
     conn.close()
     if res:
         return res[0]
@@ -50,7 +56,18 @@ def sql_parent(name: str) -> str or None:
 def sql_path(name: str) -> str or None:
     # Возвращает путь к файлу
     conn, cur = _sql_open_conn(DB)
-    res = cur.execute('WITH _command AS (SELECT id FROM command WHERE name = ?)SELECT path FROM _command c JOIN file_path f ON c.id=f.command_id;', (name, )).fetchone()
+    res = cur.execute(
+        '''
+        WITH _command AS (
+            SELECT id
+            FROM command
+            WHERE name = ?)
+        SELECT path
+        FROM
+            _command c
+            JOIN file_path f ON c.id=f.command_id;
+        ''',
+        (name, )).fetchone()
     conn.close()
     if res:
         return res[0]
