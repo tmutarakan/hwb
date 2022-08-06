@@ -95,6 +95,10 @@ def register_handlers_client(dp: Dispatcher):
         lambda callback_query: callback_query.data == '/prev'
         )
     dp.register_callback_query_handler(
+        page_callback_button,
+        lambda callback_query: isinstance(callback_query.data, int)
+        )
+    dp.register_callback_query_handler(
         file_callback_button,
         lambda callback_query: '_file' in callback_query.data
         )

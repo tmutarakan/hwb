@@ -4,6 +4,7 @@ from collections import deque
 from keyboards.config import LIMIT_ROWS, MAX_STRING_LENGTH
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 import pickle
+import os
 
 
 storage = MemoryStorage()
@@ -45,20 +46,20 @@ class State:
             self.page[i] = rows
         else:
             self.page[i] = [_ for _ in rows[:LIMIT_ROWS]]
-            self.page[i].append([ButtonData('Вперёд', '/next')])
             rows = rows[LIMIT_ROWS:]
             i += 1
             while len(rows) > LIMIT_ROWS:
                 self.page[i] = [_ for _ in rows[:LIMIT_ROWS]]
-                self.page[i].append([
-                    ButtonData('Назад', '/prev'),
-                    ButtonData('Вперёд', '/next')
-                    ])
                 rows = rows[LIMIT_ROWS:]
                 i += 1
             self.page[i] = [_ for _ in rows]
-            self.page[i].append([ButtonData('Назад', '/prev')])
-        self.length: int = i + 1
+            self.page[i]
+        self.length = i
+        if self.length:
+            self.page[0].append([ButtonData('Вперёд', '/next')])
+            [self.page[i].append([ButtonData('Назад', '/prev'), ButtonData('Вперёд', '/next')]) for i in range(1,self.length)]
+            self.page[self.length].append([ButtonData('Назад', '/prev')])
+
 
     def __getstate__(self) -> dict:  # Как мы будем "сохранять" класс
         state = {}
@@ -121,10 +122,16 @@ def create_keyboard(parent: str, user_id: int) -> InlineKeyboardMarkup:
         inline_kbm.add(InlineKeyboardButton("Вернуться", callback_data=root))
     rows = create_rows(parent)
     st = State(rows, root, user_id)
-    with open(f"temp/{user_id}.pkl", "wb") as fp:
-        pickle.dump(st, fp)
-    print(st)
-    for row in st.page[0]:
+    if os.path.exists(f"temp/{user_id}.pkl"):
+        with open(f"temp/{user_id}.pkl", "rb") as fp:
+            prev_st = pickle.load(fp)
+        if prev_st.root == st.root:
+            st = prev_st
+    else:
+        with open(f"temp/{user_id}.pkl", "wb") as fp:
+            pickle.dump(st, fp)
+    #print(st)
+    for row in st.page[st.curr]:
         temp = []
         for button_data in row:
             temp.append(
