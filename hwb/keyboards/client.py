@@ -33,33 +33,36 @@ class TempData:
 
 class State:
     def __init__(self, rows: list, root: str, user_id: int) -> None:
-        self.curr: int = 0
-        self.user_id: int = user_id
         self.root: str = root
-        self.page: dict = {}
+        self.user_id: int = user_id
+        self.curr: int = 0
         self.length: int = 0
+        self.page: list = []
+        self.b_prev: ButtonData = ButtonData('Назад', '/prev')
+        self.b_next: ButtonData = ButtonData('Вперёд', '/next')
         self.create_paginator(rows)
 
     def create_paginator(self, rows):
         i = 0
         if len(rows) <= LIMIT_ROWS:
-            self.page[i] = rows
+            self.page.append(rows)
         else:
-            self.page[i] = [_ for _ in rows[:LIMIT_ROWS]]
+            self.page.append([_ for _ in rows[:LIMIT_ROWS]])
             rows = rows[LIMIT_ROWS:]
             i += 1
             while len(rows) > LIMIT_ROWS:
-                self.page[i] = [_ for _ in rows[:LIMIT_ROWS]]
+                self.page.append([_ for _ in rows[:LIMIT_ROWS]])
                 rows = rows[LIMIT_ROWS:]
                 i += 1
-            self.page[i] = [_ for _ in rows]
-            self.page[i]
+            self.page.append([_ for _ in rows])
         self.length = i
         if self.length:
-            self.page[0].append([ButtonData('Вперёд', '/next')])
-            [self.page[i].append([ButtonData('Назад', '/prev'), ButtonData('Вперёд', '/next')]) for i in range(1,self.length)]
-            self.page[self.length].append([ButtonData('Назад', '/prev')])
-
+            self.page[0].append([ButtonData('Вперёд', '/next')]) # не работает через атрибут
+            [self.page[i].append([
+                self.b_prev,
+                self.b_next
+                ]) for i in range(1, self.length)]
+            self.page[self.length].append([self.b_prev])
 
     def __getstate__(self) -> dict:  # Как мы будем "сохранять" класс
         state = {}
@@ -130,7 +133,6 @@ def create_keyboard(parent: str, user_id: int) -> InlineKeyboardMarkup:
     else:
         with open(f"temp/{user_id}.pkl", "wb") as fp:
             pickle.dump(st, fp)
-    #print(st)
     for row in st.page[st.curr]:
         temp = []
         for button_data in row:
@@ -157,7 +159,6 @@ def edit_keyboard(data: str, user_id: int) -> InlineKeyboardMarkup:
     root = st.root
     if root:
         inline_kbm.add(InlineKeyboardButton("Вернуться", callback_data=root))
-
     pages = st.page[st.curr]
     for row in pages:
         temp = []
