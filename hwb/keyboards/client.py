@@ -1,11 +1,11 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from sqlite.sqlite_db import sql_child, sql_parent
 from collections import deque
-from keyboards.config import LIMIT_ROWS, MAX_STRING_LENGTH
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 import pickle
 import os
 import json
+from keyboards.config import LIMIT_ROWS, MAX_STRING_LENGTH, BACK_BUTTON, PREV_BUTTON, NEXT_BUTTON
 
 
 storage = MemoryStorage()
@@ -40,8 +40,8 @@ class State:
         self.curr: int = 0           # номер текущей страницы
         self.length: int = 0         # количество страниц
         self.page: list = []         # содержимое страниц
-        self.b_prev: ButtonData = ButtonData('Назад', '/prev')
-        self.b_next: ButtonData = ButtonData('Вперёд', '/next')
+        self.b_prev: ButtonData = ButtonData(PREV_BUTTON, '/prev')
+        self.b_next: ButtonData = ButtonData(NEXT_BUTTON, '/next')
         self.create_paginator(rows)
 
     def create_paginator(self, rows):
@@ -125,8 +125,6 @@ def create_keyboard(parent: str, user_id: int) -> InlineKeyboardMarkup:
     # Создаёт клавиатуру на основе запроса из базы данных
     inline_kbm = InlineKeyboardMarkup()
     root = sql_parent(parent)
-    if root:
-        inline_kbm.add(InlineKeyboardButton("Вернуться", callback_data=root))
     rows = create_rows(parent)
     st = State(rows, root, parent, user_id)
     if os.path.exists(f"temp/{user_id}_{parent[1:]}.pkl"):
@@ -134,13 +132,13 @@ def create_keyboard(parent: str, user_id: int) -> InlineKeyboardMarkup:
             prev_st = pickle.load(fp)
         if prev_st.parent == parent:
             st = prev_st
-            print(f'{user_id}_{parent[1:]} {root} {parent} {st.curr}')
     with open(f"temp/{user_id}_{parent[1:]}.pkl", "wb") as fp:
         pickle.dump(st, fp)
     latest = {user_id: {'filename': f"temp/{user_id}_{parent[1:]}.pkl"}}
     with open("temp/current.json", "w") as fp:
         json.dump(latest, fp, ensure_ascii=False, indent=4)
-    print(root, parent, st.curr)
+    if st.root:
+        inline_kbm.add(InlineKeyboardButton(BACK_BUTTON, callback_data=st.root))
     for row in st.page[st.curr]:
         temp = []
         for button_data in row:
@@ -168,7 +166,7 @@ def edit_keyboard(data: str, user_id: int) -> InlineKeyboardMarkup:
     inline_kbm = InlineKeyboardMarkup()
     root = st.root
     if root:
-        inline_kbm.add(InlineKeyboardButton("Вернуться", callback_data=root))
+        inline_kbm.add(InlineKeyboardButton(BACK_BUTTON, callback_data=root))
     print(st.curr)
     pages = st.page[st.curr]
     for row in pages:

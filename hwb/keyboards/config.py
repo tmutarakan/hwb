@@ -1,2 +1,5 @@
 LIMIT_ROWS = 5
 MAX_STRING_LENGTH = 36
+NEXT_BUTTON = 'Вперёд \u27A1'
+PREV_BUTTON = '\u2B05 Назад'
+BACK_BUTTON = '\u2B06 Вернуться'
