@@ -12,7 +12,7 @@ storage = MemoryStorage()
 
 
 class ButtonData:
-    def __init__(self, message: str, name: str) -> None:
+    def __init__(self, message: str, name: str):
         self.message: str = message
         self.name: str = name
 
@@ -24,7 +24,7 @@ class ButtonData:
 
 
 class TempData:
-    def __init__(self) -> None:
+    def __init__(self):
         self.count: int = 0           # Количество кнопок в строке
         self.length: int = 0          # Суммарная длина текста кнопок
         self.list_length: list = []   # Длина текста каждой кнопки
@@ -33,13 +33,13 @@ class TempData:
 
 
 class State:
-    def __init__(self, rows: list, root: str, parent:str, user_id: int) -> None:
-        self.root: str = root
-        self.parent: str = parent
-        self.user_id: int = user_id
-        self.curr: int = 0
-        self.length: int = 0
-        self.page: list = []
+    def __init__(self, rows: list, root: str, parent: str, user_id: int):
+        self.root: str = root        # родитель
+        self.parent: str = parent    # имя команды
+        self.user_id: int = user_id  # идентификатор пользователя
+        self.curr: int = 0           # номер текущей страницы
+        self.length: int = 0         # количество страниц
+        self.page: list = []         # содержимое страниц
         self.b_prev: ButtonData = ButtonData('Назад', '/prev')
         self.b_next: ButtonData = ButtonData('Вперёд', '/next')
         self.create_paginator(rows)
@@ -59,7 +59,8 @@ class State:
             self.page.append([_ for _ in rows])
         self.length = i
         if self.length:
-            self.page[0].append([ButtonData('Вперёд', '/next')]) # не работает через атрибут
+            # не работает через атрибут
+            self.page[0].append([ButtonData('Вперёд', '/next')])
             [self.page[i].append([
                 self.b_prev,
                 self.b_next
