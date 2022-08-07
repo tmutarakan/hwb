@@ -5,6 +5,7 @@ from keyboards.config import LIMIT_ROWS, MAX_STRING_LENGTH
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 import pickle
 import os
+import json
 
 
 storage = MemoryStorage()
@@ -32,8 +33,9 @@ class TempData:
 
 
 class State:
-    def __init__(self, rows: list, root: str, user_id: int) -> None:
+    def __init__(self, rows: list, root: str, parent:str, user_id: int) -> None:
         self.root: str = root
+        self.parent: str = parent
         self.user_id: int = user_id
         self.curr: int = 0
         self.length: int = 0
@@ -69,6 +71,7 @@ class State:
         state["user_id"] = self.user_id
         state["curr"] = self.curr
         state["root"] = self.root
+        state["parent"] = self.parent
         state["page"] = self.page
         state["length"] = self.length
         return state
@@ -77,6 +80,7 @@ class State:
         self.user_id = state["user_id"]
         self.curr = state["curr"]
         self.root = state["root"]
+        self.parent = state["parent"]
         self.page = state["page"]
         self.length = state["length"]
 
@@ -124,15 +128,19 @@ def create_keyboard(parent: str, user_id: int) -> InlineKeyboardMarkup:
     if root:
         inline_kbm.add(InlineKeyboardButton("Вернуться", callback_data=root))
     rows = create_rows(parent)
-    st = State(rows, root, user_id)
-    if os.path.exists(f"temp/{user_id}.pkl"):
-        with open(f"temp/{user_id}.pkl", "rb") as fp:
+    st = State(rows, root, parent, user_id)
+    if os.path.exists(f"temp/{user_id}_{parent[1:]}.pkl"):
+        with open(f"temp/{user_id}_{parent[1:]}.pkl", "rb") as fp:
             prev_st = pickle.load(fp)
-        if prev_st.root == st.root:
+        if prev_st.parent == parent:
             st = prev_st
-    else:
-        with open(f"temp/{user_id}.pkl", "wb") as fp:
-            pickle.dump(st, fp)
+            print(f'{user_id}_{parent[1:]} {root} {parent} {st.curr}')
+    with open(f"temp/{user_id}_{parent[1:]}.pkl", "wb") as fp:
+        pickle.dump(st, fp)
+    latest = {user_id: {'filename': f"temp/{user_id}_{parent[1:]}.pkl"}}
+    with open("temp/current.json", "w") as fp:
+        json.dump(latest, fp, ensure_ascii=False, indent=4)
+    print(root, parent, st.curr)
     for row in st.page[st.curr]:
         temp = []
         for button_data in row:
@@ -147,18 +155,21 @@ def create_keyboard(parent: str, user_id: int) -> InlineKeyboardMarkup:
 
 
 def edit_keyboard(data: str, user_id: int) -> InlineKeyboardMarkup:
-    with open(f"temp/{user_id}.pkl", "rb") as fp:
+    with open("temp/current.json", "r") as fp:
+        latest = json.load(fp)
+    with open(latest[str(user_id)]['filename'], "rb") as fp:
         st = pickle.load(fp)
     if data == '/prev':
         st.curr -= 1
     else:
         st.curr += 1
-    with open(f"temp/{user_id}.pkl", "wb") as fp:
+    with open(latest[str(user_id)]['filename'], "wb") as fp:
         pickle.dump(st, fp)
     inline_kbm = InlineKeyboardMarkup()
     root = st.root
     if root:
         inline_kbm.add(InlineKeyboardButton("Вернуться", callback_data=root))
+    print(st.curr)
     pages = st.page[st.curr]
     for row in pages:
         temp = []
