@@ -59,8 +59,7 @@ class State:
             self.page.append([_ for _ in rows])
         self.length = i
         if self.length:
-            # не работает через атрибут
-            self.page[0].append([ButtonData('Вперёд', '/next')])
+            self.page[0].append([self.b_next])
             [self.page[i].append([
                 self.b_prev,
                 self.b_next
