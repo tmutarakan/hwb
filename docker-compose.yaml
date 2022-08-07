@@ -10,7 +10,7 @@ services:
       TOKEN: "${TOKEN}"
 
     volumes:
-      - ./db:/app/db
+      - ./db/sqlite:/app/db/sqlite
       - ./static:/app/static
       - ./temp:/app/temp
 
@@ -20,6 +20,6 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./db:/data
+      - ./db/sqlite:/data
     environment:
       SQLITE_DATABASE: "command.db"

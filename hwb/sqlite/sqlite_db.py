@@ -11,7 +11,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-DB = 'db/command.db'
+DB = 'db/sqlite/command.db'
 
 
 def _sql_open_conn(db: str) -> tuple():
