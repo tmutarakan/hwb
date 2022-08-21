@@ -5,31 +5,29 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 import pickle
 import os
 import json
-from keyboards.config import LIMIT_ROWS, MAX_STRING_LENGTH, BACK_BUTTON, PREV_BUTTON, NEXT_BUTTON
+from dataclasses import dataclass, field
+from keyboards.config import (
+    LIMIT_ROWS, MAX_STRING_LENGTH, BACK_BUTTON, PREV_BUTTON, NEXT_BUTTON)
 
 
 storage = MemoryStorage()
 
 
+@dataclass
 class ButtonData:
-    def __init__(self, message: str, name: str):
-        self.message: str = message
-        self.name: str = name
-
-    def __str__(self) -> str:
-        return f'{self.name} {self.message}'
-
-    def __repr__(self) -> str:
-        return f'{self.name} {self.message}'
+    message: str
+    name: str
 
 
+@dataclass
 class TempData:
-    def __init__(self):
-        self.count: int = 0           # Количество кнопок в строке
-        self.length: int = 0          # Суммарная длина текста кнопок
-        self.list_length: list = []   # Длина текста каждой кнопки
-        self.all_length: bool = True  # Вмещается ли текст всех кнопок в строке
-        self.list_button: list = []   # Список для кнопок
+    count: int = 0              # Количество кнопок в строке
+    length: int = 0             # Суммарная длина текста кнопок
+    list_length: list = field(
+        default_factory=list)   # Длина текста каждой кнопки
+    all_length: bool = True     # Вмещается ли текст всех кнопок в строке
+    list_button: list = field(
+        default_factory=list)   # Список для кнопок
 
 
 class State:
@@ -138,7 +136,9 @@ def create_keyboard(parent: str, user_id: int) -> InlineKeyboardMarkup:
     with open("temp/current.json", "w") as fp:
         json.dump(latest, fp, ensure_ascii=False, indent=4)
     if st.root:
-        inline_kbm.add(InlineKeyboardButton(BACK_BUTTON, callback_data=st.root))
+        inline_kbm.add(
+            InlineKeyboardButton(BACK_BUTTON, callback_data=st.root)
+            )
     for row in st.page[st.curr]:
         temp = []
         for button_data in row:
