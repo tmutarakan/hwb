@@ -23,3 +23,9 @@ services:
       - ./db/sqlite:/data
     environment:
       SQLITE_DATABASE: "command.db"
+
+  redis:
+    image: redis:7.0.4-alpine
+    container_name: redis7
+    ports:
+      - "6379:6379"

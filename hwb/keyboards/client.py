@@ -1,3 +1,4 @@
+from email import message
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from sqlite.sqlite_db import sql_child, sql_parent
 from collections import deque
@@ -8,9 +9,10 @@ import json
 from dataclasses import dataclass, field
 from keyboards.config import (
     LIMIT_ROWS, MAX_STRING_LENGTH, BACK_BUTTON, PREV_BUTTON, NEXT_BUTTON)
+import redis
 
 
-storage = MemoryStorage()
+r = redis.Redis(host='redis7', port=6379)
 
 
 @dataclass
@@ -64,12 +66,13 @@ class State:
                 ]) for i in range(1, self.length)]
             self.page[self.length].append([self.b_prev])
 
-    def __getstate__(self) -> dict:  # Как мы будем "сохранять" класс
+    '''def __getstate__(self) -> dict:  # Как мы будем "сохранять" класс
         state = {}
         state["user_id"] = self.user_id
         state["curr"] = self.curr
         state["root"] = self.root
         state["parent"] = self.parent
+        # state["page"] = [[[{'message': button.message, 'name': button.name} for button in row] for row in page] for page in self.page]
         state["page"] = self.page
         state["length"] = self.length
         return state
@@ -79,8 +82,9 @@ class State:
         self.curr = state["curr"]
         self.root = state["root"]
         self.parent = state["parent"]
+        # self.page = [[[ButtonData(button['message'], button['name']) for button in row] for row in page] for page in state["page"]]
         self.page = state["page"]
-        self.length = state["length"]
+        self.length = state["length"]'''
 
     def __str__(self) -> str:
         return f'{self.page}'
@@ -125,16 +129,12 @@ def create_keyboard(parent: str, user_id: int) -> InlineKeyboardMarkup:
     root = sql_parent(parent)
     rows = create_rows(parent)
     st = State(rows, root, parent, user_id)
-    if os.path.exists(f"temp/{user_id}_{parent[1:]}.pkl"):
-        with open(f"temp/{user_id}_{parent[1:]}.pkl", "rb") as fp:
-            prev_st = pickle.load(fp)
+    if str.encode(f"{user_id}_{parent[1:]}") in r.keys():
+        prev_st = pickle.loads(r.get(f"{user_id}_{parent[1:]}"))
         if prev_st.parent == parent:
             st = prev_st
-    with open(f"temp/{user_id}_{parent[1:]}.pkl", "wb") as fp:
-        pickle.dump(st, fp)
-    latest = {user_id: {'filename': f"temp/{user_id}_{parent[1:]}.pkl"}}
-    with open("temp/current.json", "w") as fp:
-        json.dump(latest, fp, ensure_ascii=False, indent=4)
+    r.set(f"{user_id}_{parent[1:]}", pickle.dumps(st))
+    r.set(user_id, f"{user_id}_{parent[1:]}")
     if st.root:
         inline_kbm.add(
             InlineKeyboardButton(BACK_BUTTON, callback_data=st.root)
@@ -153,21 +153,18 @@ def create_keyboard(parent: str, user_id: int) -> InlineKeyboardMarkup:
 
 
 def edit_keyboard(data: str, user_id: int) -> InlineKeyboardMarkup:
-    with open("temp/current.json", "r") as fp:
-        latest = json.load(fp)
-    with open(latest[str(user_id)]['filename'], "rb") as fp:
-        st = pickle.load(fp)
+    latest = r.get(user_id)
+    st = State([], '', '', 0)
+    st = pickle.loads(r.get(latest))
     if data == '/prev':
         st.curr -= 1
     else:
         st.curr += 1
-    with open(latest[str(user_id)]['filename'], "wb") as fp:
-        pickle.dump(st, fp)
+    r.set(latest, pickle.dumps(st))
     inline_kbm = InlineKeyboardMarkup()
     root = st.root
     if root:
         inline_kbm.add(InlineKeyboardButton(BACK_BUTTON, callback_data=root))
-    print(st.curr)
     pages = st.page[st.curr]
     for row in pages:
         temp = []
