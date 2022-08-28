@@ -10,9 +10,9 @@ services:
       TOKEN: "${TOKEN}"
 
     volumes:
-      - ./db/sqlite:/app/db/sqlite
-      - ./static:/app/static
-      - ./temp:/app/temp
+      - $PWD/db/sqlite:/app/db/sqlite
+      - $PWD/static:/app/static
+      - $PWD/temp:/app/temp
 
   sqlite:
     image: coleifer/sqlite-web:latest
@@ -20,7 +20,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./db/sqlite:/data
+      - $PWD/db/sqlite:/data
     environment:
       SQLITE_DATABASE: "command.db"
 
@@ -29,3 +29,6 @@ services:
     container_name: redis7
     ports:
       - "6379:6379"
+    volumes:
+      - $PWD/db/pyredis/redis_snapshot:/data
+      - $PWD/db/pyredis/config/redis.conf:/usr/local/etc/redis/redis.conf
