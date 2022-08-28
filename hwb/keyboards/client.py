@@ -1,10 +1,7 @@
-from email import message
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from sqlite.sqlite_db import sql_child, sql_parent
 from collections import deque
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
-import pickle
-import os
+# from aiogram.contrib.fsm_storage.memory import MemoryStorage
 import json
 from dataclasses import dataclass, field
 from keyboards.config import (
@@ -66,14 +63,23 @@ class State:
                 ]) for i in range(1, self.length)]
             self.page[self.length].append([self.b_prev])
 
-    '''def __getstate__(self) -> dict:  # Как мы будем "сохранять" класс
+    def __getstate__(self) -> dict:  # Как мы будем "сохранять" класс
         state = {}
         state["user_id"] = self.user_id
         state["curr"] = self.curr
         state["root"] = self.root
         state["parent"] = self.parent
-        # state["page"] = [[[{'message': button.message, 'name': button.name} for button in row] for row in page] for page in self.page]
-        state["page"] = self.page
+        state["page"] = [
+            [
+                [
+                    {
+                        'message': button.message,
+                        'name': button.name
+                    } for button in row
+                ] for row in page
+            ] for page in self.page
+        ]
+        # state["page"] = self.page
         state["length"] = self.length
         return state
 
@@ -82,9 +88,17 @@ class State:
         self.curr = state["curr"]
         self.root = state["root"]
         self.parent = state["parent"]
-        # self.page = [[[ButtonData(button['message'], button['name']) for button in row] for row in page] for page in state["page"]]
-        self.page = state["page"]
-        self.length = state["length"]'''
+        self.page = [
+            [
+                [
+                    ButtonData(
+                        button['message'], button['name']
+                        ) for button in row
+                ] for row in page
+            ] for page in state["page"]
+        ]
+        # self.page = state["page"]
+        self.length = state["length"]
 
     def __str__(self) -> str:
         return f'{self.page}'
@@ -130,10 +144,11 @@ def create_keyboard(parent: str, user_id: int) -> InlineKeyboardMarkup:
     rows = create_rows(parent)
     st = State(rows, root, parent, user_id)
     if str.encode(f"{user_id}_{parent[1:]}") in r.keys():
-        prev_st = pickle.loads(r.get(f"{user_id}_{parent[1:]}"))
+        prev_st = State([], '', '', 0)
+        prev_st.__setstate__(json.loads(r.get(f"{user_id}_{parent[1:]}")))
         if prev_st.parent == parent:
             st = prev_st
-    r.set(f"{user_id}_{parent[1:]}", pickle.dumps(st))
+    r.set(f"{user_id}_{parent[1:]}", json.dumps(st.__getstate__()))
     r.set(user_id, f"{user_id}_{parent[1:]}")
     if st.root:
         inline_kbm.add(
@@ -155,12 +170,12 @@ def create_keyboard(parent: str, user_id: int) -> InlineKeyboardMarkup:
 def edit_keyboard(data: str, user_id: int) -> InlineKeyboardMarkup:
     latest = r.get(user_id)
     st = State([], '', '', 0)
-    st = pickle.loads(r.get(latest))
+    st.__setstate__(json.loads(r.get(latest)))
     if data == '/prev':
         st.curr -= 1
     else:
         st.curr += 1
-    r.set(latest, pickle.dumps(st))
+    r.set(latest, json.dumps(st.__getstate__()))
     inline_kbm = InlineKeyboardMarkup()
     root = st.root
     if root:

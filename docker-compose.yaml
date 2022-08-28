@@ -31,4 +31,4 @@ services:
       - "6379:6379"
     volumes:
       - $PWD/db/pyredis/redis_snapshot:/data
-      - $PWD/db/pyredis/config/redis.conf:/usr/local/etc/redis/redis.conf
+      - $PWD/db/pyredis/config/redis.conf:/etc/redis/redis.conf
