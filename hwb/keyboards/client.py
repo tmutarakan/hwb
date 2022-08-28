@@ -30,7 +30,12 @@ class TempData:
 
 
 class State:
-    def __init__(self, rows: list, root: str, parent: str, user_id: int):
+    def __init__(
+        self, rows: list = [],
+        root: str = '',
+        parent: str = '',
+        user_id: int = 0
+    ):
         self.root: str = root        # родитель
         self.parent: str = parent    # имя команды
         self.user_id: int = user_id  # идентификатор пользователя
@@ -62,6 +67,12 @@ class State:
                 self.b_next
                 ]) for i in range(1, self.length)]
             self.page[self.length].append([self.b_prev])
+
+    def to_dict(self) -> dict:
+        return self.__getstate__()
+
+    def from_dict(self, state: dict):
+        self.__setstate__(state)
 
     def __getstate__(self) -> dict:  # Как мы будем "сохранять" класс
         state = {}
@@ -144,11 +155,11 @@ def create_keyboard(parent: str, user_id: int) -> InlineKeyboardMarkup:
     rows = create_rows(parent)
     st = State(rows, root, parent, user_id)
     if str.encode(f"{user_id}_{parent[1:]}") in r.keys():
-        prev_st = State([], '', '', 0)
-        prev_st.__setstate__(json.loads(r.get(f"{user_id}_{parent[1:]}")))
+        prev_st = State()
+        prev_st.from_dict(json.loads(r.get(f"{user_id}_{parent[1:]}")))
         if prev_st.parent == parent:
             st = prev_st
-    r.set(f"{user_id}_{parent[1:]}", json.dumps(st.__getstate__()))
+    r.set(f"{user_id}_{parent[1:]}", json.dumps(st.to_dict()))
     r.set(user_id, f"{user_id}_{parent[1:]}")
     if st.root:
         inline_kbm.add(
@@ -169,13 +180,13 @@ def create_keyboard(parent: str, user_id: int) -> InlineKeyboardMarkup:
 
 def edit_keyboard(data: str, user_id: int) -> InlineKeyboardMarkup:
     latest = r.get(user_id)
-    st = State([], '', '', 0)
-    st.__setstate__(json.loads(r.get(latest)))
+    st = State()
+    st.from_dict(json.loads(r.get(latest)))
     if data == '/prev':
         st.curr -= 1
     else:
         st.curr += 1
-    r.set(latest, json.dumps(st.__getstate__()))
+    r.set(latest, json.dumps(st.to_dict()))
     inline_kbm = InlineKeyboardMarkup()
     root = st.root
     if root:
