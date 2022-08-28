@@ -1,5 +1,5 @@
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-from sqlite.sqlite_db import sql_child, sql_parent
+from sqlite.sqlite_db import get_childrens, get_parent
 from collections import deque
 # from aiogram.contrib.fsm_storage.memory import MemoryStorage
 import json
@@ -120,7 +120,7 @@ class State:
 
 def create_rows(parent: str) -> list:
     msg_list = deque()
-    for name, message in sql_child(parent):
+    for name, message in get_childrens(parent):
         msg_list.append(ButtonData(message, name))
 
     rows = []
@@ -151,7 +151,7 @@ def create_rows(parent: str) -> list:
 def create_keyboard(parent: str, user_id: int) -> InlineKeyboardMarkup:
     # Создаёт клавиатуру на основе запроса из базы данных
     inline_kbm = InlineKeyboardMarkup()
-    root = sql_parent(parent)
+    root = get_parent(parent)
     rows = create_rows(parent)
     st = State(rows, root, parent, user_id)
     if str.encode(f"{user_id}_{parent[1:]}") in r.keys():

@@ -20,8 +20,8 @@ def _sql_open_conn(db: str) -> tuple():
     return conn, cur
 
 
-def sql_child(parent: str) -> tuple:
-    # Возвращает данные необходимые для клавиатуры
+def get_childrens(parent: str) -> tuple:
+    # Возвращает имя команды и текст для кнопки
     conn, cur = _sql_open_conn(DB)
     res = cur.execute(
         'SELECT name, message FROM command WHERE parent = ? ORDER BY name;',
@@ -30,7 +30,7 @@ def sql_child(parent: str) -> tuple:
     return res
 
 
-def sql_read(name: str) -> str or None:
+def get_content(name: str) -> str or None:
     # Возвращает данные для ответного сообщения
     conn, cur = _sql_open_conn(DB)
     res = cur.execute(
@@ -41,8 +41,8 @@ def sql_read(name: str) -> str or None:
         return res[0]
 
 
-def sql_parent(name: str) -> str or None:
-    # Возвращает данные для кнопки Назад
+def get_parent(name: str) -> str or None:
+    # Возвращает данные для кнопки "Вернуться"
     conn, cur = _sql_open_conn(DB)
     logger.info(f'sql query {name}')
     res = cur.execute(
@@ -53,7 +53,7 @@ def sql_parent(name: str) -> str or None:
         return res[0]
 
 
-def sql_path(name: str) -> str or None:
+def get_path(name: str) -> str or None:
     # Возвращает путь к файлу
     conn, cur = _sql_open_conn(DB)
     res = cur.execute(

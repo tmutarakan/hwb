@@ -2,7 +2,7 @@ from aiogram import types, Dispatcher
 from aiogram.types import InputFile
 from keyboards import client as kc
 from create_bot import bot
-from sqlite.sqlite_db import sql_read, sql_path
+from sqlite.sqlite_db import get_content, get_path
 
 
 async def commands_start(message: types.Message):
@@ -39,7 +39,7 @@ async def file_callback_button(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
     await bot.send_document(
         user_id,
-        InputFile(sql_path(data)),
+        InputFile(get_path(data)),
         reply_markup=kc.create_keyboard(parent=data, user_id=user_id)
         )
     await delete_prev_markup(user_id, callback_query.message.message_id)
@@ -51,8 +51,8 @@ async def photo_callback_button(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
     await bot.send_photo(
         user_id,
-        InputFile(sql_path(data)),
-        caption=sql_read(data),
+        InputFile(get_path(data)),
+        caption=get_content(data),
         reply_markup=kc.create_keyboard(parent=data, user_id=user_id)
         )
     await delete_prev_markup(user_id, callback_query.message.message_id)
@@ -74,7 +74,7 @@ async def process_callback_button(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id)
     # Отправляет сообщение с новой клавиатурой
     await bot.send_message(
-        user_id, sql_read(data),
+        user_id, get_content(data),
         reply_markup=kc.create_keyboard(parent=data, user_id=user_id)
         )
     await delete_prev_markup(user_id, callback_query.message.message_id)
