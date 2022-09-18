@@ -3,6 +3,7 @@ from aiogram.types import InputFile
 from keyboards import client as kc
 from create_bot import bot
 from sqlite.sqlite_db import get_content, get_path
+from config import DEFAULT_PATH_JPG
 
 
 async def commands_start(message: types.Message):
@@ -48,10 +49,14 @@ async def file_callback_button(callback_query: types.CallbackQuery):
 async def photo_callback_button(callback_query: types.CallbackQuery):
     data = callback_query.data
     user_id = callback_query.from_user.id
+    try:
+        file = InputFile(f"./{get_path(data)}")
+    except FileNotFoundError:
+        file = InputFile(DEFAULT_PATH_JPG)
     await bot.answer_callback_query(callback_query.id)
     await bot.send_photo(
         user_id,
-        InputFile(get_path(data)),
+        file,
         caption=get_content(data),
         reply_markup=kc.create_keyboard(parent=data, user_id=user_id)
         )

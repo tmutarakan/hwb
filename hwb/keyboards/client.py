@@ -4,7 +4,7 @@ from collections import deque
 # from aiogram.contrib.fsm_storage.memory import MemoryStorage
 import json
 from dataclasses import dataclass, field
-from keyboards.config import (
+from config import (
     LIMIT_ROWS, MAX_STRING_LENGTH, BACK_BUTTON, PREV_BUTTON, NEXT_BUTTON)
 import redis
 
