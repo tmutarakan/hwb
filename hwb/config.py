@@ -7,3 +7,4 @@ BACK_BUTTON = '\u2B06 Вернуться'
 
 # handlers/client.py
 DEFAULT_PATH_JPG = "./static/default.jpg"
+DEFAULT_PATH_WITHOUT_PHOTO = "./static/without.png"

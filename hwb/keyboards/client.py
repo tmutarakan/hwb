@@ -165,7 +165,6 @@ def create_keyboard(parent: str, user_id: int) -> InlineKeyboardMarkup:
         inline_kbm.add(
             InlineKeyboardButton(BACK_BUTTON, callback_data=st.root)
             )
-    print(st.curr)
     for row in st.page[st.curr]:
         temp = []
         for button_data in row:
