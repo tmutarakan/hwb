@@ -1,6 +1,5 @@
 from aiogram.utils import executor
 import logging
-from rich.logging import RichHandler
 from create_bot import dp
 from handlers import client
 

@@ -1,7 +1,6 @@
 # Модуль для базы данных
 import sqlite3 as sq
 import logging
-from rich.logging import RichHandler
 
 
 FORMAT = "%(name)s %(asctime)s %(levelname)s %(message)s"
