@@ -5,7 +5,7 @@ import logging
 
 FORMAT = "%(name)s %(asctime)s %(levelname)s %(message)s"
 logging.basicConfig(
-    filename='./log/info_sql.log',
+    filename='./log/info.log',
     level=logging.INFO,
     format=FORMAT,
     datefmt="[%X]"

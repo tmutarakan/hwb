@@ -41,6 +41,8 @@ async def root_callback_button(callback_query: types.CallbackQuery):
 async def photo_callback_button(callback_query: types.CallbackQuery):
     data = callback_query.data
     user_id = callback_query.from_user.id
+    caption = get_content(data)
+    reply_markup = kc.create_keyboard(parent=data, user_id=user_id)
     try:
         file = InputFile(f"./{get_path(data)}")
     except FileNotFoundError:
@@ -49,11 +51,11 @@ async def photo_callback_button(callback_query: types.CallbackQuery):
     await bot.edit_message_media(
         media=InputMediaPhoto(
             media=file,
-            caption=get_content(data)
+            caption=caption
         ),
         chat_id=user_id,
         message_id=callback_query.message.message_id,
-        reply_markup=kc.create_keyboard(parent=data, user_id=user_id)
+        reply_markup=reply_markup
     )
 
 

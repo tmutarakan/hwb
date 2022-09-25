@@ -11,6 +11,7 @@ logging.basicConfig(
     format=FORMAT,
     datefmt="[%X]"
 )
+logger = logging.getLogger(__name__)
 
 client.register_handlers_client(dp)
 executor.start_polling(dp)
