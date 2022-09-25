@@ -13,6 +13,7 @@ services:
       - $PWD/db/sqlite:/app/db/sqlite
       - $PWD/static:/app/static
       - $PWD/temp:/app/temp
+      - $PWD/log:/app/log
 
   sqlite:
     image: coleifer/sqlite-web:latest

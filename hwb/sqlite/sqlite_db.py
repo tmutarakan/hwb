@@ -4,9 +4,12 @@ import logging
 from rich.logging import RichHandler
 
 
-FORMAT = "%(message)s"
+FORMAT = "%(name)s %(asctime)s %(levelname)s %(message)s"
 logging.basicConfig(
-    level=logging.INFO, format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
+    filename='./log/info_sql.log',
+    level=logging.INFO,
+    format=FORMAT,
+    datefmt="[%X]"
 )
 logger = logging.getLogger(__name__)
 
