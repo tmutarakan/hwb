@@ -74,6 +74,12 @@ class State:
     def from_dict(self, state: dict):
         self.__setstate__(state)
 
+    def flip_page(self, data):
+        if data == '/prev':
+            self.curr -= 1
+        else:
+            self.curr += 1
+
     def __getstate__(self) -> dict:  # Как мы будем "сохранять" класс
         state = {}
         state["user_id"] = self.user_id
@@ -182,10 +188,7 @@ def edit_keyboard(data: str, user_id: int) -> InlineKeyboardMarkup:
     latest = r.get(user_id)
     st = State()
     st.from_dict(json.loads(r.get(latest)))
-    if data == '/prev':
-        st.curr -= 1
-    else:
-        st.curr += 1
+    st.flip_page(data)
     r.set(latest, json.dumps(st.to_dict()))
     inline_kbm = InlineKeyboardMarkup()
     root = st.root
