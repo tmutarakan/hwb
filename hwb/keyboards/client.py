@@ -24,14 +24,15 @@ class TempData:
     length: int = 0             # Суммарная длина текста кнопок
     list_length: list = field(
         default_factory=list)   # Длина текста каждой кнопки
-    all_length: bool = True     # Вмещается ли текст всех кнопок в строке
+    text_length: bool = True     # Вмещается ли текст всех кнопок в строке
     list_button: list = field(
         default_factory=list)   # Список для кнопок
 
 
 class State:
     def __init__(
-        self, rows: list = [],
+        self,
+        rows: list = [],
         root: str = '',
         parent: str = '',
         user_id: int = 0
@@ -138,11 +139,11 @@ def create_rows(parent: str) -> list:
             elem_size = MAX_STRING_LENGTH/(temp.count + 1)
             for temp_elem in temp.list_length:
                 if temp_elem > elem_size:
-                    temp.all_length = False
+                    temp.text_length = False
                     break
             if temp.length + elem_length > MAX_STRING_LENGTH or \
                elem_length > elem_size or \
-               not temp.all_length:
+               not temp.text_length:
                 break
             else:
                 temp.count += 1

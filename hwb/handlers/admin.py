@@ -6,7 +6,7 @@ async def commands_start(message: types.Message):
     # Возвращает последние 10 строк из лог файла
     text = ''
     with open('./log/info.log', 'rb') as f:
-        try:  # catch OSError in case of a one line file 
+        try:  # catch OSError in case of a one line file
             f.seek(-2, os.SEEK_END)
             for i in range(10):
                 count = 0
