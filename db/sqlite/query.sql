@@ -37,3 +37,25 @@ from
     paths p
     join command c on p.name=c.name
 ;
+
+create table phone_number(
+    id integer primary key AUTOINCREMENT,
+    command_id integer,
+    phone_number text    
+);
+
+insert into phone_number (command_id, phone_number)
+with phone_numbers as(
+    select
+        json_extract(value, '$.name') as name,
+        json_extract(value, '$.phone_number') as phone_number
+    from
+        json_each(readfile('commands.json'))
+)
+select
+    id,
+    phone_number
+from
+    phone_numbers pn
+    join command c on pn.name=c.name
+;
