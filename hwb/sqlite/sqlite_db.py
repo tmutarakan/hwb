@@ -1,6 +1,7 @@
 # Модуль для базы данных
 import sqlite3 as sq
 import logging
+from config import DB
 
 
 FORMAT = "%(name)s %(asctime)s %(levelname)s %(message)s"
@@ -11,9 +12,6 @@ logging.basicConfig(
     datefmt="[%X]"
 )
 logger = logging.getLogger(__name__)
-
-
-DB = 'db/sqlite/command.db'
 
 
 def _sql_open_conn(db: str) -> tuple():

@@ -3,11 +3,15 @@ version: "3"
 services:
 
   app:
-    container_name: help_work_bot
+    container_name: "${APP_CONTAINER_NAME}"
     build: hwb/
+
+    env_file:
+      - .env
 
     environment:
       TOKEN: "${TOKEN}"
+      DB: "${DB}"
 
     volumes:
       - $PWD/db/sqlite:/app/db/sqlite
@@ -19,7 +23,7 @@ services:
     image: coleifer/sqlite-web:latest
     container_name: sqlite
     ports:
-      - "8080:8080"
+      - "${SQLITE_PORTS}"
     volumes:
       - $PWD/db/sqlite:/data
     environment:
@@ -27,9 +31,9 @@ services:
 
   redis:
     image: redis:7.0.4-alpine
-    container_name: redis7
+    container_name: "${REDIS_CONTAINER_NAME}"
     ports:
-      - "6379:6379"
+      - "${REDIS_CONTAINER_PORTS}"
     volumes:
       - $PWD/db/pyredis/redis_snapshot:/data
       - $PWD/db/pyredis/config/redis.conf:/etc/redis/redis.conf

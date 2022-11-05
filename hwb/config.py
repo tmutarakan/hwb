@@ -1,3 +1,6 @@
+from os import getenv, environ
+
+
 # keyboards/client.py
 LIMIT_ROWS = 5
 MAX_STRING_LENGTH = 36
@@ -8,3 +11,9 @@ BACK_BUTTON = '\u2B06 Вернуться'
 # handlers/client.py
 DEFAULT_PATH_JPG = "./static/default.jpg"
 DEFAULT_PATH_WITHOUT_PHOTO = "./static/without.png"
+
+# sqlite/sqlite_db.py
+DB = getenv('DB')
+
+# create_bot.py
+TOKEN = getenv('TOKEN')
