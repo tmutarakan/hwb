@@ -3,15 +3,17 @@ create table command(
     name text,
     message text,
     parent text,
-    content text
+    content text,
+    photo text
 );
 
-insert into command (name, message, parent, content)
+insert into command (name, message, parent, content, photo)
 select
     json_extract(value, '$.name') as name,
     json_extract(value, '$.message') as message,
     json_extract(value, '$.parent') as parent,
-    json_extract(value, '$.content') as content
+    json_extract(value, '$.content') as content,
+    json_extract(value, '$.photo') as photo
 from
     json_each(readfile('commands.json'))
 ;

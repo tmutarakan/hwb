@@ -58,14 +58,9 @@ def get_path(name: str) -> str or None:
     conn, cur = _sql_open_conn(DB)
     res = cur.execute(
         '''
-        WITH _command AS (
-            SELECT id
-            FROM command
-            WHERE name = ?)
-        SELECT path
-        FROM
-            _command c
-            JOIN file_path f ON c.id=f.command_id;
+        SELECT photo
+        FROM command
+        WHERE name = ?;
         ''',
         (name, )).fetchone()
     conn.close()

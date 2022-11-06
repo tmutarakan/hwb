@@ -6,9 +6,6 @@ services:
     container_name: "${APP_CONTAINER_NAME}"
     build: hwb/
 
-    env_file:
-      - .env
-
     environment:
       TOKEN: "${TOKEN}"
       DB: "${DB}"
@@ -21,7 +18,7 @@ services:
 
   sqlite:
     image: coleifer/sqlite-web:latest
-    container_name: sqlite
+    container_name: "${SQLITE_CONTAINER_NAME}"
     ports:
       - "${SQLITE_PORTS}"
     volumes:
