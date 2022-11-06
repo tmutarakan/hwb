@@ -5,11 +5,12 @@ from collections import deque
 import json
 from dataclasses import dataclass, field
 from config import (
-    LIMIT_ROWS, MAX_STRING_LENGTH, BACK_BUTTON, PREV_BUTTON, NEXT_BUTTON)
+    LIMIT_ROWS, MAX_STRING_LENGTH, BACK_BUTTON, PREV_BUTTON, NEXT_BUTTON, REDIS_CONTAINER_NAME, REDIS_CONTAINER_PORT)
 import redis
+import logging
 
 
-r = redis.Redis(host='redis7', port=6379)
+r = redis.Redis(host=REDIS_CONTAINER_NAME, port=REDIS_CONTAINER_PORT)
 
 
 @dataclass

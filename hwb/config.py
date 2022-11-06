@@ -17,3 +17,7 @@ DB = getenv('DB')
 
 # create_bot.py
 TOKEN = getenv('TOKEN')
+
+# keyboards/client.py
+REDIS_CONTAINER_NAME = getenv('REDIS_CONTAINER_NAME')
+REDIS_CONTAINER_PORT = getenv('REDIS_CONTAINER_PORT')
