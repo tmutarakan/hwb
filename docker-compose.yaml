@@ -9,6 +9,8 @@ services:
     environment:
       TOKEN: "${TOKEN}"
       DB: "${DB}"
+      REDIS_CONTAINER_NAME: "${REDIS_CONTAINER_NAME}"
+      REDIS_CONTAINER_PORT: "${REDIS_CONTAINER_PORT}"
 
     volumes:
       - $PWD/db/sqlite:/app/db/sqlite
