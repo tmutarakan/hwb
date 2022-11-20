@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from config import (
     LIMIT_ROWS, MAX_STRING_LENGTH, BACK_BUTTON, PREV_BUTTON, NEXT_BUTTON, REDIS_CONTAINER_NAME, REDIS_CONTAINER_PORT)
 import redis
+import logging
 
 
 r = redis.Redis(host=REDIS_CONTAINER_NAME, port=REDIS_CONTAINER_PORT)

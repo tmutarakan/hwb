@@ -26,7 +26,7 @@ services:
     volumes:
       - $PWD/db/sqlite:/data
     environment:
-      SQLITE_DATABASE: "command.db"
+      SQLITE_DATABASE: "employeer.db"
 
   redis:
     image: redis:7.0.4-alpine

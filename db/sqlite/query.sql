@@ -15,7 +15,7 @@ select
     json_extract(value, '$.content') as content,
     json_extract(value, '$.photo') as photo
 from
-    json_each(readfile('commands.json'))
+    json_each(readfile('employeer.json'))
 ;
 
 create table file_path(
